@@ -4,7 +4,7 @@ from heapq import *
 
 abc = "SabcdefghijklmnopqrstuvwxyzE"
 
-with open('puzzle.in') as f:
+with open("puzzle.in") as f:
     heights = f.read()
 
 
