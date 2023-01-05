@@ -9,9 +9,10 @@ tqdm = "*"
 jupyter = "*"
 jupytext = "*"
 scipy = "*"
+numba = "*"
 
 [dev-packages]
 black = "*"
 
 [requires]
-python_version = "3.11"
+python_version = "3.10"
