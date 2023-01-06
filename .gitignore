@@ -177,3 +177,6 @@ ui-tests/playwright-report
 
 # RTC
 .jupyter_ystore.db
+
+# puzzle input
+*.in
