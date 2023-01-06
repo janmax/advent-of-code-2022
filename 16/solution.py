@@ -49,75 +49,97 @@ with open('puzzle.in') as f:
     puzzle = f.read()
 
 import re
-import numpy as np
+# import numpy as np
 
-from scipy.sparse.csgraph import dijkstra
-from collections import namedtuple
+# from scipy.sparse.csgraph import dijkstra
+# from collections import namedtuple
 
 # +
 p = re.compile(r"Valve (\w{2}) has flow rate=(\d+); tunnels? leads? to valves? (.*)")
 
-data: list[tuple[str, int, list[str]]] = []
+data = []
 for line in puzzle.strip().split("\n"):
     node, flow, tunnels = p.match(line).groups()
     data.append((node, int(flow), tunnels.split(", ")))
 # if there is a valve at AA we can reach & open it in one step
 data.insert(0, ("start", 0, ["AA"]))
-
-# Build an adjacency matrix
-G = np.zeros((len(data), len(data)), dtype=int)
-to_number = {name: i for i, (name, _, _) in enumerate(data)}
-for name, flow, tunnels in data:
-    for tunnel in tunnels:
-        G[to_number[name], to_number[tunnel]] = 1
-
-non_zero_flow = np.array([0] + [to_number[name] for name, flow, _ in data if flow])
 flows = [0] + [flow for _, flow, _ in data if flow]
 
-# use scipy for simplicity
-D = dijkstra(G)
-# remove zero nodes we will never visit for themself
-D = D[non_zero_flow, :][:, non_zero_flow]
-# add cost of opening valve to paths
-D = np.vstack((D[0], D[1:] + 1))
-D[D == np.inf] = 0
-D = D.astype(int)
+# # Build an adjacency matrix
+# G = np.zeros((len(data), len(data)), dtype=int)
+# to_number = {name: i for i, (name, _, _) in enumerate(data)}
+# for name, flow, tunnels in data:
+#     for tunnel in tunnels:
+#         G[to_number[name], to_number[tunnel]] = 1
+
+# non_zero_flow = np.array([0] + [to_number[name] for name, flow, _ in data if flow])
+
+# # use scipy for simplicity
+# D = dijkstra(G)
+# # remove zero nodes we will never visit for themselves
+# D = D[non_zero_flow, :][:, non_zero_flow]
+# # add cost of opening valve to paths
+# D = np.vstack((D[0], D[1:] + 1))
+# D[D == np.inf] = 0
+# D = D.astype(int)
 
 
-# part1
-def dfs(node, remaining, flow, output, to_visit, walk=[]):
-    # print(node, remaining, flow, output, to_visit, walk)
-    if remaining <= 0:
-        return output, walk
-    return max(
-        [(output + (flow + flows[node]) * max(0, remaining), walk)]
-        + [
-            dfs(
-                i,
-                remaining - D[node, i],
-                flow + flows[node],
-                output + (flow + flows[node]) * D[node, i],
-                to_visit - {i},
-                walk + [i],
-            )
-            for i in to_visit
-            if not remaining - D[node, i] < 0
-        ]
-    )
+# # part1
+# def dfs(node, remaining, flow, output, to_visit, walk=[]):
+#     # print(node, remaining, flow, output, to_visit, walk)
+#     if remaining <= 0:
+#         return output, walk
+#     return max(
+#         [(output + (flow + flows[node]) * max(0, remaining), walk)]
+#         + [
+#             dfs(
+#                 i,
+#                 remaining - D[node, i],
+#                 flow + flows[node],
+#                 output + (flow + flows[node]) * D[node, i],
+#                 to_visit - {i},
+#                 walk + [i],
+#             )
+#             for i in to_visit
+#             if not remaining - D[node, i] < 0
+#         ]
+#     )
 
 
-dfs(0, 30, 0, 0, set(range(1, D.shape[0])))
+# dfs(0, 30, 0, 0, set(range(1, D.shape[0])))
 
-np.array([flows]), D
+# np.array([flows]), D
+# D = D.tolist()
+# -
+
+D = [
+    [0, 6, 6, 4, 9, 4, 8, 8, 4, 4, 9, 6, 7, 3, 6, 5],
+    [0, 1, 9, 4, 4, 7, 11, 3, 4, 9, 12, 9, 10, 4, 11, 6],
+    [0, 9, 1, 6, 12, 3, 3, 11, 8, 5, 4, 3, 6, 8, 7, 8],
+    [0, 4, 6, 1, 7, 4, 8, 6, 3, 7, 9, 6, 7, 4, 9, 6],
+    [0, 4, 12, 7, 1, 10, 14, 6, 7, 12, 15, 12, 13, 7, 14, 9],
+    [0, 7, 3, 4, 10, 1, 5, 9, 6, 5, 6, 3, 4, 6, 7, 8],
+    [0, 11, 3, 8, 14, 5, 1, 13, 10, 7, 4, 5, 8, 10, 9, 10],
+    [0, 3, 11, 6, 6, 9, 13, 1, 6, 11, 14, 11, 12, 6, 13, 8],
+    [0, 4, 8, 3, 7, 6, 10, 6, 1, 7, 11, 8, 9, 3, 9, 4],
+    [0, 9, 5, 7, 12, 5, 7, 11, 7, 1, 6, 3, 8, 6, 3, 4],
+    [0, 12, 4, 9, 15, 6, 4, 14, 11, 6, 1, 4, 9, 11, 8, 9],
+    [0, 9, 3, 6, 12, 3, 5, 11, 8, 3, 4, 1, 6, 8, 5, 6],
+    [0, 10, 6, 7, 13, 4, 8, 12, 9, 8, 9, 6, 1, 9, 10, 11],
+    [0, 4, 8, 4, 7, 6, 10, 6, 3, 6, 11, 8, 9, 1, 8, 3],
+    [0, 11, 7, 9, 14, 7, 9, 13, 9, 3, 8, 5, 10, 8, 1, 6],
+    [0, 6, 8, 6, 9, 8, 10, 8, 4, 4, 9, 6, 11, 3, 6, 1],
+]
 
 # +
 # %%time
 from itertools import product, cycle, permutations
+from collections import namedtuple
 
 Agent = namedtuple("Agent", "time target id")
 Option = namedtuple(
     "Option",
-    "output flow clock remaining agents previous",
+    "clock remaining agents previous",
 )
 
 
@@ -126,10 +148,8 @@ def solve(A, M, S):
     stopped = -1
     options = [
         Option(
-            0,
-            0,
             M,
-            {stopped} | set(range(1, D.shape[0])),
+            {stopped} | set(range(1, len(D))),
             [Agent(0, 0, a) for a in A],
             [],
         )
@@ -146,30 +166,39 @@ def solve(A, M, S):
         conditions = (
             not current.remaining - {-1},
             all(
-                D[agent.target, unvisited] > current.clock
+                D[agent.target][unvisited] > current.clock
                 for agent in active_agents
                 for unvisited in current.remaining
             ),
         )
+
+        # FIXME find out why this contains duplicates
         if any(conditions):
-            final_output = sum(flow * time for time, flow, _, _ in set(current.previous))
+            final_output = sum(flow * time for time, flow, _, _ in current.previous)
             max_output = max(max_output, final_output)
-#             print()
-#             print("FINAL:", current)
-#             print(f"Achieved {final_output=} {max_output=} {options_seen=}", end="\n")
-#             for p in current.previous:
-#                 print(p)
+            #             print()
+            #             print("FINAL:", current)
+            print(
+                f"Achieved final_output={final_output:4} max_output={max_output} options_seen={options_seen}",
+                end="\r",
+            )
+            #             for p in current.previous:
+            #                 print(p)
             continue
 
         if (
-            current.output
+            sum(flow * time for time, flow, _, _ in current.previous)
             + (
-                current.flow
+                sum(flow for _, flow, _, _ in current.previous)
                 + sum(
-                    flows[i]
-                    for i in current.remaining | {a.target for a in current.agents}
-                    if i != -1
-                    and all(D[a.target, i] < current.clock for a in current.agents)
+                    sorted(
+                        flows[i]
+                        for i in current.remaining - {-1}
+                        if any(
+                            D[a.target][i] < current.clock - a.time - 2
+                            for a in current.agents
+                        )
+                    )[-current.clock // 2 :]
                 )
             )
             * current.clock
@@ -180,6 +209,9 @@ def solve(A, M, S):
         #     print()
         #     print("CURRENT:", current)
         for targets in permutations(current.remaining, r=len(active_agents)):
+            # At the beginning the human goes for the
+            # smaller letters if distances are the same.
+            # Should cut options in half.
             if (
                 len(current.agents) == 2
                 and current.agents[0].target == current.agents[1].target
@@ -187,55 +219,61 @@ def solve(A, M, S):
                 and targets[0] < targets[1]
             ):
                 continue
+            # Since we get all the permutations we want to
+            # ignore those where both agents would reach the
+            # others target faster.
+            if (
+                len(active_agents) == 2
+                and D[active_agents[0].target][targets[0]]
+                > D[active_agents[1].target][targets[0]]
+                and D[active_agents[0].target][targets[1]]
+                < D[active_agents[1].target][targets[1]]
+            ):
+                continue
+
             actions = [
                 Agent(
-                    D[agent.target, target] if target != stopped else 99,
+                    D[agent.target][target],
                     target,
                     agent.id,
                 )
                 for agent, target in zip(active_agents, targets)
+                if target != stopped
             ]
-            if any(
-                action.time > current.clock
-                for action in actions
-                if action.target != stopped
-            ):
+            if any(action.time > current.clock for action in actions):
                 continue
 
-            next_action = [a for a in actions + inactive_agents if a.target != stopped]
+            next_action = [a for a in actions + inactive_agents]
             if not next_action:
                 continue
             next_action_in = min(next_action).time if next_action else 0
 
-            added_flow = sum(
-                flows[agent.target]
-                for agent in actions + inactive_agents
-                if agent.time == next_action_in
-            )
-
             options.append(
                 Option(
-                    current.output + current.flow * next_action_in,
-                    current.flow + added_flow,
                     current.clock - next_action_in,
                     current.remaining - set(a.target for a in actions) | {stopped},
                     [
                         Agent(action.time - next_action_in, action.target, action.id)
                         for action in actions + inactive_agents
-                        if action.target != stopped
                     ],
                     current.previous
-                    + [(current.clock - a.time, flows[a.target], a.target, a.id) for a in next_action],
+                    + [
+                        (current.clock - a.time, flows[a.target], a.target, a.id)
+                        for a in actions
+                    ],
                 )
             )
-#             print("APPENDED:", options[-1])
+    #             print("APPENDED:", options[-1])
+    print()
     print(
         "options seen", options_seen, "output", max_output, "correct", max_output == S
     )
 
 
-solve("h", 30, 1651)
-# solve("he", 26, 1707)
+# solve("h", 30, 1651)
+solve("he", 26, 1707)
 # -
+
+
 
 
