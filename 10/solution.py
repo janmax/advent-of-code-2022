@@ -1,6 +1,6 @@
 points = list(range(0, 40 * 7, 40))
 
-with open("instructions.in") as f:
+with open("puzzle.in") as f:
     instructions = f.read()
 
 instr = instructions.strip().split("\n")

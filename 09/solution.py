@@ -1,4 +1,4 @@
-with open("09.in") as f:
+with open("puzzle.in") as f:
     steps = f.read()
 
 vectors = {

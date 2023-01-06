@@ -2,8 +2,8 @@ from functools import reduce
 
 values = " abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-with open("backpacks.in") as f:
-    tests = f.read().split("\n")
+with open("puzzle.in") as f:
+    tests = f.read().strip().split("\n")
 
 
 def contained_in_all(backpacks):

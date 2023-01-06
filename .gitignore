@@ -180,3 +180,4 @@ ui-tests/playwright-report
 
 # puzzle input
 *.in
+.idea

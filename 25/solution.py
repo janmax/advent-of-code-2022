@@ -14,7 +14,7 @@ puzzle = """
 122
 """
 
-with open('puzzle.in') as f:
+with open("puzzle.in") as f:
     puzzle = f.read()
 
 base = 5
@@ -31,7 +31,7 @@ def snafu_to_dec(snafu):
 
 def snafu_add(a, b, carry=0):
     if not a and not b:
-        return r_digits[carry] or ''
+        return r_digits[carry] or ""
     if not a:
         return snafu_add([r_digits[carry]], b, 0)
     if not b:
@@ -67,4 +67,4 @@ check(3, 2)
 check(3, 6)
 
 n = reduce(snafu_add, numbers)
-print(n)
+print(n.lstrip("0"))

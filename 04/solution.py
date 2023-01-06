@@ -1,4 +1,4 @@
-with open("pairs.in") as f:
+with open("puzzle.in") as f:
     pairs = f.read()
 
 

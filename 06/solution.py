@@ -1,4 +1,5 @@
-test = input()
+with open("puzzle.in") as f:
+    test = f.read()
 
 
 def solve(n):

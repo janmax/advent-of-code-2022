@@ -15,16 +15,19 @@ stacks = list(
     )
 )
 
+with open("puzzle.in") as f:
+    commands = list(reversed(f.read().split("\n\n")[1].split("\n")))
+
 
 def solve_part_1():
-    while command := input():
+    while command := commands.pop():
         _, times, _, start, _, to = command.split()
         for _ in range(int(times)):
             stacks[int(to) - 1].append(stacks[int(start) - 1].pop())
 
 
 def solve_part_2():
-    while command := input():
+    while command := commands.pop():
         _, times, _, start, _, to = command.split()
         tmp = []
         for _ in range(int(times)):

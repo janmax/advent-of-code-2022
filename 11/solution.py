@@ -28,7 +28,7 @@ Monkey 3:
     If false: throw to monkey 1
 """
 
-with open("monkeys.in") as f:
+with open("puzzle.in") as f:
     monkeys_input = f.read()
 
 monkeys = {}

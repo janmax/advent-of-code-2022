@@ -56,4 +56,4 @@ while stack:
                 stack.append(s)
     visited.add(c)
 
-print('part2', outer)
+print("part2", outer)

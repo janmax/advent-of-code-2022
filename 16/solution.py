@@ -14,7 +14,7 @@
 # ---
 
 # +
-puzzle = '''
+puzzle = """
 Valve AA has flow rate=0; tunnels lead to valves DD, II, BB
 Valve BB has flow rate=13; tunnels lead to valves CC, AA
 Valve CC has flow rate=2; tunnels lead to valves DD, BB
@@ -25,7 +25,7 @@ Valve GG has flow rate=0; tunnels lead to valves FF, HH
 Valve HH has flow rate=22; tunnel leads to valve GG
 Valve II has flow rate=0; tunnels lead to valves AA, JJ
 Valve JJ has flow rate=21; tunnel leads to valve II
-'''
+"""
 
 # puzzle = '''
 # Valve AA has flow rate=0; tunnels lead to valves BB, CC
@@ -45,14 +45,15 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 # Valve FF has flow rate=1; tunnels lead to valves EE
 # '''
 
-with open('puzzle.in') as f:
+with open("puzzle.in") as f:
     puzzle = f.read()
 
 import re
-# import numpy as np
+from collections import namedtuple
+from itertools import permutations
 
-# from scipy.sparse.csgraph import dijkstra
-# from collections import namedtuple
+import numpy as np
+from scipy.sparse.csgraph import dijkstra
 
 # +
 p = re.compile(r"Valve (\w{2}) has flow rate=(\d+); tunnels? leads? to valves? (.*)")
@@ -65,51 +66,51 @@ for line in puzzle.strip().split("\n"):
 data.insert(0, ("start", 0, ["AA"]))
 flows = [0] + [flow for _, flow, _ in data if flow]
 
-# # Build an adjacency matrix
-# G = np.zeros((len(data), len(data)), dtype=int)
-# to_number = {name: i for i, (name, _, _) in enumerate(data)}
-# for name, flow, tunnels in data:
-#     for tunnel in tunnels:
-#         G[to_number[name], to_number[tunnel]] = 1
+# Build an adjacency matrix
+G = np.zeros((len(data), len(data)), dtype=int)
+to_number = {name: i for i, (name, _, _) in enumerate(data)}
+for name, flow, tunnels in data:
+    for tunnel in tunnels:
+        G[to_number[name], to_number[tunnel]] = 1
 
-# non_zero_flow = np.array([0] + [to_number[name] for name, flow, _ in data if flow])
+non_zero_flow = np.array([0] + [to_number[name] for name, flow, _ in data if flow])
 
-# # use scipy for simplicity
-# D = dijkstra(G)
-# # remove zero nodes we will never visit for themselves
-# D = D[non_zero_flow, :][:, non_zero_flow]
-# # add cost of opening valve to paths
-# D = np.vstack((D[0], D[1:] + 1))
-# D[D == np.inf] = 0
-# D = D.astype(int)
-
-
-# # part1
-# def dfs(node, remaining, flow, output, to_visit, walk=[]):
-#     # print(node, remaining, flow, output, to_visit, walk)
-#     if remaining <= 0:
-#         return output, walk
-#     return max(
-#         [(output + (flow + flows[node]) * max(0, remaining), walk)]
-#         + [
-#             dfs(
-#                 i,
-#                 remaining - D[node, i],
-#                 flow + flows[node],
-#                 output + (flow + flows[node]) * D[node, i],
-#                 to_visit - {i},
-#                 walk + [i],
-#             )
-#             for i in to_visit
-#             if not remaining - D[node, i] < 0
-#         ]
-#     )
+# use scipy for simplicity
+D = dijkstra(G)
+# remove zero nodes we will never visit for themselves
+D = D[non_zero_flow, :][:, non_zero_flow]
+# add cost of opening valve to paths
+D = np.vstack((D[0], D[1:] + 1))
+D[D == np.inf] = 0
+D = D.astype(int)
 
 
-# dfs(0, 30, 0, 0, set(range(1, D.shape[0])))
+# part1 (solution for part2 solves part1 as well just with one agent)
+def dfs(node, remaining, flow, output, to_visit, walk=[]):
+    # print(node, remaining, flow, output, to_visit, walk)
+    if remaining <= 0:
+        return output, walk
+    return max(
+        [(output + (flow + flows[node]) * max(0, remaining), walk)]
+        + [
+            dfs(
+                i,
+                remaining - D[node, i],
+                flow + flows[node],
+                output + (flow + flows[node]) * D[node, i],
+                to_visit - {i},
+                walk + [i],
+            )
+            for i in to_visit
+            if not remaining - D[node, i] < 0
+        ]
+    )
 
-# np.array([flows]), D
-# D = D.tolist()
+
+dfs(0, 30, 0, 0, set(range(1, D.shape[0])))
+
+np.array([flows]), D
+D = D.tolist()
 # -
 
 D = [
@@ -133,8 +134,6 @@ D = [
 
 # +
 # %%time
-from itertools import product, cycle, permutations
-from collections import namedtuple
 
 Agent = namedtuple("Agent", "time target id")
 Option = namedtuple(
@@ -159,7 +158,6 @@ def solve(A, M, S):
     while options:
         current = options.pop()
         options_seen += 1
-        # print(f"Remaining options: {len(options):04d} clock: {current.clock:02d}", end="\r")
 
         active_agents = [agent for agent in current.agents if agent.time == 0]
         inactive_agents = [agent for agent in current.agents if agent.time != 0]
@@ -172,7 +170,6 @@ def solve(A, M, S):
             ),
         )
 
-        # FIXME find out why this contains duplicates
         if any(conditions):
             final_output = sum(flow * time for time, flow, _, _ in current.previous)
             max_output = max(max_output, final_output)
@@ -206,8 +203,6 @@ def solve(A, M, S):
         ):
             continue
 
-        #     print()
-        #     print("CURRENT:", current)
         for targets in permutations(current.remaining, r=len(active_agents)):
             # At the beginning the human goes for the
             # smaller letters if distances are the same.
@@ -273,7 +268,3 @@ def solve(A, M, S):
 # solve("h", 30, 1651)
 solve("he", 26, 1707)
 # -
-
-
-
-

@@ -6,7 +6,7 @@ forest = """
 35390
 """
 
-with open("forest.in") as f:
+with open("puzzle.in") as f:
     forest = f.read()
 
 

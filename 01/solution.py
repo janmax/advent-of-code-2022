@@ -1,4 +1,4 @@
-with open("calories.in") as f:
+with open("puzzle.in") as f:
     calories = f.read()
 
 print(max(sum(map(int, elf.split("\n"))) for elf in calories.strip().split("\n\n")))

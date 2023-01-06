@@ -27,7 +27,7 @@ possibilities_part2 = dict(
     )
 )
 
-with open("games.in") as f:
+with open("puzzle.in") as f:
     games = f.read()
 
 print(sum(possibilities_part2[game] for game in games.strip().split("\n")))

@@ -1,5 +1,5 @@
-with open("final.in") as f:
-    commands = f.read().split("\n")
+with open("puzzle.in") as f:
+    commands = f.read().strip().split("\n")
 
 
 def new_node():
